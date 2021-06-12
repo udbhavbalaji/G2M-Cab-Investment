@@ -1,4 +1,5 @@
 #%%
+# Importing required libraries
 from typing import ValuesView
 import pandas as pd
 import numpy as np
@@ -20,7 +21,46 @@ cab_data.head()
 # %%
 # Calculating profits from price and cost
 cab_data['profit'] = cab_data.price - cab_data.cost
+cab_data.head(8)
+# %%
+# Updating date to new format so we know the actual date of each ride
+date_list = list(cab_data.travel_date.unique())
+date_list.sort()
+updated_date = []
+i = 0
+for date in date_list:
+    updated_date.append(i)
+    i += 1
+for i in range(len(updated_date)):
+    cab_data['travel_date'] = cab_data.travel_date.apply(lambda x: updated_date[i] if x == date_list[i] else x)
 cab_data.head()
+# %%
+# Calculating year for each ride
+cab_data['year'] = cab_data.travel_date
+cab_data['year'] = cab_data.year.apply(lambda x: 2016 if x//365 == 0 else x)
+cab_data['year'] = cab_data.year.apply(lambda x: 2017 if x//365 == 1 else x)
+cab_data['year'] = cab_data.year.apply(lambda x: 2018 if x//365 == 2 else x)
+months = ['January','February','March','April','May','June','July','August','September','October','November','December']
+cab_data['date_of_year'] = cab_data.travel_date.apply(lambda x: x%365)
+# %%
+# Calculating month for each ride
+cab_data['month'] = ''
+cab_data['month'] = cab_data.apply(lambda x: 'January' if 0 <= x['date_of_year'] <= 30 else x['month'], axis=1)
+cab_data['month'] = cab_data.apply(lambda x: 'February' if 31 <= x['date_of_year'] <= 58 else x['month'], axis=1)
+cab_data['month'] = cab_data.apply(lambda x: 'March' if 59 <= x['date_of_year'] <= 89 else x['month'], axis=1)
+cab_data['month'] = cab_data.apply(lambda x: 'April' if 90 <= x['date_of_year'] <= 119 else x['month'], axis=1)
+cab_data['month'] = cab_data.apply(lambda x: 'May' if 120 <= x['date_of_year'] <= 150 else x['month'], axis=1)
+cab_data['month'] = cab_data.apply(lambda x: 'June' if 151 <= x['date_of_year'] <= 180 else x['month'], axis=1)
+cab_data['month'] = cab_data.apply(lambda x: 'July' if 181 <= x['date_of_year'] <= 211 else x['month'], axis=1)
+cab_data['month'] = cab_data.apply(lambda x: 'August' if 212 <= x['date_of_year'] <= 242 else x['month'], axis=1)
+cab_data['month'] = cab_data.apply(lambda x: 'September' if 243 <= x['date_of_year'] <= 272 else x['month'], axis=1)
+cab_data['month'] = cab_data.apply(lambda x: 'October' if 273 <= x['date_of_year'] <= 303 else x['month'], axis=1)
+cab_data['month'] = cab_data.apply(lambda x: 'November' if 304 <= x['date_of_year'] <= 333 else x['month'], axis=1)
+cab_data['month'] = cab_data.apply(lambda x: 'December' if 334 <= x['date_of_year'] <= 364 else x['month'], axis=1)
+cab_data.head()
+# %%
+# Calculating day for each ride
+
 # %%
 # Copying cab_data into a master data frame
 master = cab_data.copy()
