@@ -13,16 +13,12 @@ city = pd.read_csv('Datasets/City.csv')
 customer = pd.read_csv('Datasets/Customer_ID.csv')
 transaction = pd.read_csv('Datasets/Transaction_ID.csv')
 # %%
-cab_data.columns
-# %%
 # Renaming columns
 cab_data.columns = ['txnID', 'travel_date', 'company', 'city', 'distance',
        'price', 'cost']
-cab_data.head()
 # %%
 # Calculating profits from price and cost
 cab_data['profit'] = cab_data.price - cab_data.cost
-cab_data.head(8)
 # %%
 # Updating date to new format so we know the actual date of each ride
 date_list = list(cab_data.travel_date.unique())
@@ -41,8 +37,6 @@ for index, row in cab_data.iterrows():
     list_date.append(updated_date[idx])
 
 cab_data['travel_date'] = list_date
-# row['travel_date'] = list_date
-cab_data.head()
 # %%
 # Calculating year for each ride
 cab_data['year'] = cab_data.travel_date
@@ -50,23 +44,47 @@ cab_data['year'] = cab_data.year.apply(lambda x: 2016 if x//365 == 0 else x)
 cab_data['year'] = cab_data.year.apply(lambda x: 2017 if x//365 == 1 else x)
 cab_data['year'] = cab_data.year.apply(lambda x: 2018 if x//365 == 2 else x)
 months = ['January','February','March','April','May','June','July','August','September','October','November','December']
-cab_data['date_of_year'] = cab_data.travel_date.apply(lambda x: x%365)
+cab_data['date_of_year'] = cab_data.travel_date.apply(lambda x: (x%365)+1)
 # %%
-# Calculating month for each ride
+# Calculating month and date for each ride
 cab_data['month'] = ''
-cab_data['month'] = cab_data.apply(lambda x: 'January' if 0 <= x['date_of_year'] <= 30 else x['month'], axis=1)
-cab_data['month'] = cab_data.apply(lambda x: 'February' if 31 <= x['date_of_year'] <= 58 else x['month'], axis=1)
-cab_data['month'] = cab_data.apply(lambda x: 'March' if 59 <= x['date_of_year'] <= 89 else x['month'], axis=1)
-cab_data['month'] = cab_data.apply(lambda x: 'April' if 90 <= x['date_of_year'] <= 119 else x['month'], axis=1)
-cab_data['month'] = cab_data.apply(lambda x: 'May' if 120 <= x['date_of_year'] <= 150 else x['month'], axis=1)
-cab_data['month'] = cab_data.apply(lambda x: 'June' if 151 <= x['date_of_year'] <= 180 else x['month'], axis=1)
-cab_data['month'] = cab_data.apply(lambda x: 'July' if 181 <= x['date_of_year'] <= 211 else x['month'], axis=1)
-cab_data['month'] = cab_data.apply(lambda x: 'August' if 212 <= x['date_of_year'] <= 242 else x['month'], axis=1)
-cab_data['month'] = cab_data.apply(lambda x: 'September' if 243 <= x['date_of_year'] <= 272 else x['month'], axis=1)
-cab_data['month'] = cab_data.apply(lambda x: 'October' if 273 <= x['date_of_year'] <= 303 else x['month'], axis=1)
-cab_data['month'] = cab_data.apply(lambda x: 'November' if 304 <= x['date_of_year'] <= 333 else x['month'], axis=1)
-cab_data['month'] = cab_data.apply(lambda x: 'December' if 334 <= x['date_of_year'] <= 364 else x['month'], axis=1)
-cab_data.head()
+cab_data['date_of_month'] = 0
+cab_data['month'] = cab_data.apply(lambda x: 'January' if 1 <= x['date_of_year'] <= 31 else x['month'], axis=1)
+cab_data['date_of_month'] = cab_data.apply(lambda x: x['date_of_year']%32 if x['month'] == 'January' else x['date_of_month'], axis = 1)
+
+cab_data['month'] = cab_data.apply(lambda x: 'February' if 32 <= x['date_of_year'] <= 59 else x['month'], axis=1)
+cab_data['date_of_month'] = cab_data.apply(lambda x: (x['date_of_year']-31)%29 if x['month'] == 'February' else x['date_of_month'], axis = 1)
+
+cab_data['month'] = cab_data.apply(lambda x: 'March' if 60 <= x['date_of_year'] <= 90 else x['month'], axis=1)
+cab_data['date_of_month'] = cab_data.apply(lambda x: (x['date_of_year']-59)%32 if x['month'] == 'March' else x['date_of_month'], axis = 1)
+
+cab_data['month'] = cab_data.apply(lambda x: 'April' if 91 <= x['date_of_year'] <= 120 else x['month'], axis=1)
+cab_data['date_of_month'] = cab_data.apply(lambda x: (x['date_of_year']-90)%31 if x['month'] == 'April' else x['date_of_month'], axis = 1)
+
+cab_data['month'] = cab_data.apply(lambda x: 'May' if 121 <= x['date_of_year'] <= 151 else x['month'], axis=1)
+cab_data['date_of_month'] = cab_data.apply(lambda x: (x['date_of_year']-120)%32 if x['month'] == 'May' else x['date_of_month'], axis = 1)
+
+cab_data['month'] = cab_data.apply(lambda x: 'June' if 152 <= x['date_of_year'] <= 181 else x['month'], axis=1)
+cab_data['date_of_month'] = cab_data.apply(lambda x: (x['date_of_year']-151)%31 if x['month'] == 'June' else x['date_of_month'], axis = 1)
+
+cab_data['month'] = cab_data.apply(lambda x: 'July' if 182 <= x['date_of_year'] <= 212 else x['month'], axis=1)
+cab_data['date_of_month'] = cab_data.apply(lambda x: (x['date_of_year']-181)%32 if x['month'] == 'July' else x['date_of_month'], axis = 1)
+
+cab_data['month'] = cab_data.apply(lambda x: 'August' if 213 <= x['date_of_year'] <= 243 else x['month'], axis=1)
+cab_data['date_of_month'] = cab_data.apply(lambda x: (x['date_of_year']-212)%32 if x['month'] == 'August' else x['date_of_month'], axis = 1)
+
+cab_data['month'] = cab_data.apply(lambda x: 'September' if 244 <= x['date_of_year'] <= 273 else x['month'], axis=1)
+cab_data['date_of_month'] = cab_data.apply(lambda x: (x['date_of_year']-243)%31 if x['month'] == 'September' else x['date_of_month'], axis = 1)
+
+cab_data['month'] = cab_data.apply(lambda x: 'October' if 274 <= x['date_of_year'] <= 304 else x['month'], axis=1)
+cab_data['date_of_month'] = cab_data.apply(lambda x: (x['date_of_year']-273)%32 if x['month'] == 'October' else x['date_of_month'], axis = 1)
+
+cab_data['month'] = cab_data.apply(lambda x: 'November' if 305 <= x['date_of_year'] <= 334 else x['month'], axis=1)
+cab_data['date_of_month'] = cab_data.apply(lambda x: (x['date_of_year']-304)%31 if x['month'] == 'November' else x['date_of_month'], axis = 1)
+
+cab_data['month'] = cab_data.apply(lambda x: 'December' if 335 <= x['date_of_year'] <= 365 else x['month'], axis=1)
+cab_data['date_of_month'] = cab_data.apply(lambda x: (x['date_of_year']-334)%32 if x['month'] == 'December' else x['date_of_month'], axis = 1)
+
 # %%
 # Calculating day for each ride
 cab_data['day'] = ''
@@ -76,16 +94,17 @@ for index, row in cab_data.iterrows():
     idx = row['travel_date']%7
     day_list.append(list_days[idx])
 cab_data['day'] = day_list
-cab_data
 # %%
 # Separating city and state where each ride took place
 cab_data['state'] = cab_data.city.apply(lambda x: x[-2:].strip() if x[-3] == ' ' else x.strip())
 cab_data['city'] = cab_data.city.apply(lambda x: x[:-2].strip() if x[-3] == ' ' else x.strip())
 cab_data.head()
 # %%
-# Copying cab_data into a master data frame
-master = cab_data.copy()
-master = master.set_index('txnID')
+# Copying the required columns from cab_data into a master data frame
+# The required columns are ['txnID','date','day','month','year','city','state','distance','cost','price','profit','company']
+master = cab_data[['txnID','date_of_month','day','month','year','city','state','distance','cost','price','profit','company']]
+# master = master.set_index('txnID')
+master.columns = ['txnID','date','day_name','month','year','city','state','distance','cost','price','profit','company']
 master.head()
 # %%
 # Removing the commas from the population and users and converting to int
