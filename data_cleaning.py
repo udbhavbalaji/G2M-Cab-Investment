@@ -4,6 +4,7 @@ from typing import ValuesView
 import pandas as pd
 import numpy as np
 from pandas.core.accessor import register_index_accessor
+from pandas.core.base import DataError
 pd.set_option("display.max_columns", None)
 # %%
 # Loading in all the datasets
@@ -31,8 +32,16 @@ i = 0
 for date in date_list:
     updated_date.append(i)
     i += 1
-for i in range(len(updated_date)):
-    cab_data['travel_date'] = cab_data.travel_date.apply(lambda x: updated_date[i] if x == date_list[i] else x)
+list_date = []
+j = 0
+# for i in range(len(updated_date)):
+#     cab_data['travel_date'] = cab_data.travel_date.apply(lambda x: updated_date[i] if x == date_list[i] else x)
+for index, row in cab_data.iterrows():
+    idx = date_list.index(row['travel_date'])
+    list_date.append(updated_date[idx])
+
+cab_data['travel_date'] = list_date
+# row['travel_date'] = list_date
 cab_data.head()
 # %%
 # Calculating year for each ride
@@ -60,7 +69,19 @@ cab_data['month'] = cab_data.apply(lambda x: 'December' if 334 <= x['date_of_yea
 cab_data.head()
 # %%
 # Calculating day for each ride
-
+cab_data['day'] = ''
+list_days = ['Friday','Saturday','Sunday','Monday','Tuesday','Wednesday','Thursday']
+day_list = []
+for index, row in cab_data.iterrows():
+    idx = row['travel_date']%7
+    day_list.append(list_days[idx])
+cab_data['day'] = day_list
+cab_data
+# %%
+# Separating city and state where each ride took place
+cab_data['state'] = cab_data.city.apply(lambda x: x[-2:].strip() if x[-3] == ' ' else x.strip())
+cab_data['city'] = cab_data.city.apply(lambda x: x[:-2].strip() if x[-3] == ' ' else x.strip())
+cab_data.head()
 # %%
 # Copying cab_data into a master data frame
 master = cab_data.copy()
