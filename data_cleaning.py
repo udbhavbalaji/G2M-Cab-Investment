@@ -96,15 +96,16 @@ for index, row in cab_data.iterrows():
 cab_data['day'] = day_list
 # %%
 # Separating city and state where each ride took place
-cab_data['state'] = cab_data.city.apply(lambda x: x[-2:].strip() if x[-3] == ' ' else x.strip())
+cab_data['city_state'] = cab_data.city
+cab_data['state'] = cab_data.city.apply(lambda x: x[-2:].strip() if x[-3] == ' ' else 'CA')
 cab_data['city'] = cab_data.city.apply(lambda x: x[:-2].strip() if x[-3] == ' ' else x.strip())
 cab_data.head()
 # %%
 # Copying the required columns from cab_data into a master data frame
 # The required columns are ['txnID','date','day','month','year','city','state','distance','cost','price','profit','company']
-master = cab_data[['txnID','date_of_month','day','month','year','city','state','distance','cost','price','profit','company']]
+master = cab_data[['txnID','date_of_month','day','month','year','city','state','distance','cost','price','profit','company','city_state']]
 # master = master.set_index('txnID')
-master.columns = ['txnID','date','day_name','month','year','city','state','distance','cost','price','profit','company']
+master.columns = ['txnID','date','day_name','month','year','city','state','distance','cost','price','profit','company','city_state']
 master.head()
 # %%
 # Removing the commas from the population and users and converting to int
@@ -124,9 +125,45 @@ pop_dict
 pop_list = []
 user_list = []
 for index, row in master.iterrows():
-    user_list.append(user_dict[row['city']])
-    pop_list.append(pop_dict[row['city']])
+    user_list.append(user_dict[row['city_state']])
+    pop_list.append(pop_dict[row['city_state']])
 master['population'] = pop_list
 master['user'] = user_list
+master.drop('city_state', axis=1, inplace=True)
 master.head()
+# %%
+# Using the transactions data to add relevant columns to master
+transaction.columns = ['txnID','custID','pay_mode']
+# %%
+# Now, we need to map this data to the master data as there are more rows in 
+# transactions than in master so we need to map the correct transactions only
+master = pd.merge(master, transaction[['custID','pay_mode']], how='left', left_index=True, right_index=True)
+# %%
+# Adding the customer details to the master set
+# customer.columns = ['custID','gender','age','monthly_income']
+cust_dict = {}
+# customer = customer.set_index('custID')
+for index, row in customer.iterrows():
+    cust_dict[index] = [row['gender'], row['age'], row['monthly_income']]
+gender_list = []
+age_list = []
+income_list = []
+for index, row in master.iterrows():
+    gender_list.append(cust_dict[row['custID']][0])
+    age_list.append(cust_dict[row['custID']][1])
+    income_list.append(cust_dict[row['custID']][2])
+master['gender'] = gender_list
+master['age'] = age_list
+master['monthly_income'] = income_list
+master.head()
+# %%
+master = master[['txnID', 'custID', 'date', 'month', 'year', 'day_name', 'distance', 'city', 'state',
+        'cost', 'price', 'profit', 'population', 'user',
+        'pay_mode', 'gender', 'age', 'monthly_income', 'company']]
+# %%
+# We now use the holiday list to add it to the master data
+# holiday = pd.read_csv('Datsets/USHolidays.csv')
+# hol2016 = holiday['2016']
+# hol2017 = holiday['2017']
+# hol2018 = holiday['2018']
 # %%
