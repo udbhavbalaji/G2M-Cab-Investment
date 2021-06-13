@@ -140,9 +140,9 @@ transaction.columns = ['txnID','custID','pay_mode']
 master = pd.merge(master, transaction[['custID','pay_mode']], how='left', left_index=True, right_index=True)
 # %%
 # Adding the customer details to the master set
-# customer.columns = ['custID','gender','age','monthly_income']
+customer.columns = ['custID','gender','age','monthly_income']
 cust_dict = {}
-# customer = customer.set_index('custID')
+customer = customer.set_index('custID')
 for index, row in customer.iterrows():
     cust_dict[index] = [row['gender'], row['age'], row['monthly_income']]
 gender_list = []
@@ -162,8 +162,34 @@ master = master[['txnID', 'custID', 'date', 'month', 'year', 'day_name', 'distan
         'pay_mode', 'gender', 'age', 'monthly_income', 'company']]
 # %%
 # We now use the holiday list to add it to the master data
-# holiday = pd.read_csv('Datsets/USHolidays.csv')
-# hol2016 = holiday['2016']
-# hol2017 = holiday['2017']
-# hol2018 = holiday['2018']
+holiday = pd.read_csv('Datasets/USHolidays.csv')
+hol2016 = pd.DataFrame(holiday[['Holiday','2016']])
+hol2017 = pd.DataFrame(holiday[['Holiday','2017']])
+hol2018 = pd.DataFrame(holiday[['Holiday','2018']])
 # %%
+# 2016
+hol2016['date'] = hol2016['2016'].apply(lambda x: int(str(x).split('/')[0]))
+hol2016['month'] = hol2016['2016'].apply(lambda x: int(str(x).split('/')[1]))
+hol2016['year'] = hol2016['2016'].apply(lambda x: int(str(x).split('/')[2]))
+hol2016['month'] = hol2016['month'].apply(lambda x: months[x-1])
+# %%
+# 2017
+hol2017['date'] = hol2017['2017'].apply(lambda x: int(str(x).split('/')[0]))
+hol2017['month'] = hol2017['2017'].apply(lambda x: int(str(x).split('/')[1]))
+hol2017['year'] = hol2017['2017'].apply(lambda x: int(str(x).split('/')[2]))
+hol2017['month'] = hol2017['month'].apply(lambda x: months[x-1])
+# %%
+# 2018
+hol2018['date'] = hol2018['2018'].apply(lambda x: int(str(x).split('/')[0]))
+hol2018['month'] = hol2018['2018'].apply(lambda x: int(str(x).split('/')[1]))
+hol2018['year'] = hol2018['2018'].apply(lambda x: int(str(x).split('/')[2]))
+hol2018['month'] = hol2018['month'].apply(lambda x: months[x-1])
+# %%
+hol2016.drop('2016', axis=1, inplace=True)
+hol2017.drop('2017', axis=1, inplace=True)
+hol2018.drop('2018', axis=1, inplace=True)
+# %%
+holidays = hol2016.append(hol2017, ignore_index=True)
+holidays = holidays.append(hol2018, ignore_index=True)
+# %%
+# Adding the holidays to the master dataset
