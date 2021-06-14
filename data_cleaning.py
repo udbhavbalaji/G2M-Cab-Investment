@@ -30,8 +30,6 @@ for date in date_list:
     i += 1
 list_date = []
 j = 0
-# for i in range(len(updated_date)):
-#     cab_data['travel_date'] = cab_data.travel_date.apply(lambda x: updated_date[i] if x == date_list[i] else x)
 for index, row in cab_data.iterrows():
     idx = date_list.index(row['travel_date'])
     list_date.append(updated_date[idx])
@@ -104,7 +102,6 @@ cab_data.head()
 # Copying the required columns from cab_data into a master data frame
 # The required columns are ['txnID','date','day','month','year','city','state','distance','cost','price','profit','company']
 master = cab_data[['txnID','date_of_month','day','month','year','city','state','distance','cost','price','profit','company','city_state']]
-# master = master.set_index('txnID')
 master.columns = ['txnID','date','day_name','month','year','city','state','distance','cost','price','profit','company','city_state']
 master.head()
 # %%
@@ -193,3 +190,21 @@ holidays = hol2016.append(hol2017, ignore_index=True)
 holidays = holidays.append(hol2018, ignore_index=True)
 # %%
 # Adding the holidays to the master dataset
+holiday_list = []
+for index, row in master.iterrows():
+    date = row['date']
+    month = row['month']
+    year = row['year']
+    req_hols = holidays[(holidays.date == date) & (holidays.month == month) & (holidays.year == year)]
+    if req_hols.shape[0] == 1:
+        holiday_list.append(req_hols.Holiday.values[0])
+    else:
+        holiday_list.append(np.nan)
+
+master['Holiday'] = holiday_list
+# %%
+master.head()
+# %%
+# Exporting the master data into a csv file to proceed to the EDA
+master.to_csv('Datasets/Master_Data.csv', index=False)
+# %%
